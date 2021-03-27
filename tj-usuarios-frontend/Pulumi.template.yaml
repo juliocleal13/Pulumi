@@ -1,0 +1,15 @@
+config:
+  stack:name: template
+  image:image_tag: "20.4.0-0"
+  istio:istio_enabled: "true"
+  kubernetes:namespace: julioleal
+  unj-workflow-frontend:replicas: 0
+  unj-workflow-frontend:pullSecret: unjregistry
+  image:repository: "docker-unj-repo.softplan.com.br/unj/tj-usuarios-frontend"
+  
+  image:pullPolicy: Always
+
+  resources:limit_cpu: 500m
+  resources:limit_memory: 300Mi
+  resources:requests_cpu: 500m
+  resources:requests_memory: 256Mi
