@@ -1,0 +1,3 @@
+name: global
+runtime: go
+description: Config global todos os projetos

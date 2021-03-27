@@ -1,0 +1,2 @@
+config:
+  kubernetes:namespace: julioleal
