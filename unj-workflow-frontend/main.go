@@ -2,30 +2,33 @@ package main
 
 import (
 	"strconv"
+	"strings"
 
 	appsv1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/apps/v1"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi/config"
+	v1alpha3Spec "istio.io/api/networking/v1alpha3"
+	"istio.io/client-go/pkg/apis/networking/v1alpha3"
+	apimachinery "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		conf_stack := config.New(ctx, "stack")
-		if conf_stack.Require("name") != "template" && conf_stack.Require("name") != "version" {
+		stack := ctx.Stack()
+		if !strings.Contains(stack, "template") {
 
 			conf := config.New(ctx, "")
 			conf_k8s := config.New(ctx, "kubernetes")
 			conf_istio := config.New(ctx, "istio")
 			conf_image := config.New(ctx, "image")
 			conf_resources := config.New(ctx, "resources")
-
 			name := ctx.Project()
 
 			replicas, err := strconv.ParseInt(conf.Require("replicas"), 10, 64)
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			namespace := conf_k8s.Require("namespace")
@@ -111,6 +114,46 @@ func main() {
 			}
 
 			ctx.Export("name", deployment.Metadata.Elem().Name())
+
+			//service
+			svc, err := corev1.NewService(ctx, name+"-"+namespace, &corev1.ServiceArgs{
+				Metadata: &metav1.ObjectMetaArgs{
+					Name:   pulumi.String(name + "-" + namespace),
+					Labels: appLabels,
+				},
+				Spec: &corev1.ServiceSpecArgs{
+					Type: pulumi.String("ClusterIP"),
+					Ports: &corev1.ServicePortArray{
+						&corev1.ServicePortArgs{
+							Port:       pulumi.Int(80),
+							TargetPort: pulumi.Int(80),
+							Protocol:   pulumi.String("TCP"),
+						},
+					},
+					Selector: appLabels,
+				},
+			})
+			if err != nil {
+				return err
+			}
+
+			ctx.Export("name", svc.Metadata.Elem().Name())
+
+			//virtualservice
+
+			_ = &v1alpha3.VirtualService{
+				TypeMeta: apimachinery.TypeMeta{
+					APIVersion: "networking.istio.io/v1alpha3",
+					Kind:       "Virtualservice",
+				},
+				ObjectMeta: apimachinery.ObjectMeta{
+					Name: "default",
+				},
+				Spec: v1alpha3Spec.VirtualService{},
+			}
+
+			//ctx.Export(ic.NetworkingV1alpha3().VirtualServices(namespace).Create(ctx, vs, metav1.CreateOptions{}))
+
 		}
 		return nil
 	})
