@@ -4,14 +4,12 @@ import (
 	"strconv"
 	"strings"
 
+	apiext "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/apiextensions"
 	appsv1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/apps/v1"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi/config"
-	v1alpha3Spec "istio.io/api/networking/v1alpha3"
-	"istio.io/client-go/pkg/apis/networking/v1alpha3"
-	apimachinery "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func main() {
@@ -136,23 +134,28 @@ func main() {
 			if err != nil {
 				return err
 			}
-
 			ctx.Export("name", svc.Metadata.Elem().Name())
 
 			//virtualservice
-
-			_ = &v1alpha3.VirtualService{
-				TypeMeta: apimachinery.TypeMeta{
-					APIVersion: "networking.istio.io/v1alpha3",
-					Kind:       "Virtualservice",
+			vs, err := apiext.NewCustomResource(ctx, name+"-"+namespace, &apiext.CustomResourceArgs{
+				ApiVersion: pulumi.String("networking.istio.io/v1alpha3"),
+				Kind:       pulumi.String("VirtualService"),
+				Metadata: &metav1.ObjectMetaArgs{
+					Name:   pulumi.String(name + "-" + namespace),
+					Labels: appLabels,
 				},
-				ObjectMeta: apimachinery.ObjectMeta{
-					Name: "default",
+				OtherFields: map[string]interface{}{
+					"spec": map[string]interface{}{
+						"gateways": []string{"teste.com.br", "dfasfdf"},
+						"hosts":    []string{"teste.com.br", "dfasfdf"},
+						"http":     []string{},
+					},
 				},
-				Spec: v1alpha3Spec.VirtualService{},
+			})
+			if err != nil {
+				return err
 			}
-
-			//ctx.Export(ic.NetworkingV1alpha3().VirtualServices(namespace).Create(ctx, vs, metav1.CreateOptions{}))
+			ctx.Export("name", vs.Metadata.Elem().Name())
 
 		}
 		return nil
