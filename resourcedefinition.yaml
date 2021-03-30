@@ -87,11 +87,106 @@ spec:
                 description: An ordered list of route rules for HTTP traffic.
                 items:
                   properties:
-                    
                     match:
                       items:
                         properties:
-                          
+                          authority:
+                            oneOf:
+                            - not:
+                                anyOf:
+                                - required:
+                                  - exact
+                                - required:
+                                  - prefix
+                                - required:
+                                  - regex
+                            - required:
+                              - exact
+                            - required:
+                              - prefix
+                            - required:
+                              - regex
+                            properties:
+                              exact:
+                                format: string
+                                type: string
+                              prefix:
+                                format: string
+                                type: string
+                              regex:
+                                description: RE2 style regex-based match (https://github.com/google/re2/wiki/Syntax).
+                                format: string
+                                type: string
+                            type: object
+                          gateways:
+                            description: Names of gateways where the rule should be
+                              applied.
+                            items:
+                              format: string
+                              type: string
+                            type: array
+                          headers:
+                            additionalProperties:
+                              oneOf:
+                              - not:
+                                  anyOf:
+                                  - required:
+                                    - exact
+                                  - required:
+                                    - prefix
+                                  - required:
+                                    - regex
+                              - required:
+                                - exact
+                              - required:
+                                - prefix
+                              - required:
+                                - regex
+                              properties:
+                                exact:
+                                  format: string
+                                  type: string
+                                prefix:
+                                  format: string
+                                  type: string
+                                regex:
+                                  description: RE2 style regex-based match (https://github.com/google/re2/wiki/Syntax).
+                                  format: string
+                                  type: string
+                              type: object
+                            type: object
+                          ignoreUriCase:
+                            description: Flag to specify whether the URI matching
+                              should be case-insensitive.
+                            type: boolean
+                          method:
+                            oneOf:
+                            - not:
+                                anyOf:
+                                - required:
+                                  - exact
+                                - required:
+                                  - prefix
+                                - required:
+                                  - regex
+                            - required:
+                              - exact
+                            - required:
+                              - prefix
+                            - required:
+                              - regex
+                            properties:
+                              exact:
+                                format: string
+                                type: string
+                              prefix:
+                                format: string
+                                type: string
+                              regex:
+                                description: RE2 style regex-based match (https://github.com/google/re2/wiki/Syntax).
+                                format: string
+                                type: string
+                            type: object
                           name:
                             description: The name assigned to a match.
                             format: string
@@ -231,93 +326,10 @@ spec:
                             type: object
                         type: object
                       type: array
-                    mirror:
-                      properties:
-                        host:
-                          description: The name of a service from the service registry.
-                          format: string
-                          type: string
-                        port:
-                          description: Specifies the port on the host that is being
-                            addressed.
-                          properties:
-                            number:
-                              type: integer
-                          type: object
-                        subset:
-                          description: The name of a subset within the service.
-                          format: string
-                          type: string
-                      type: object
-                    mirror_percent:
-                      description: Percentage of the traffic to be mirrored by the
-                        `mirror` field.
-                      nullable: true
-                      type: integer
-                    mirrorPercent:
-                      description: Percentage of the traffic to be mirrored by the
-                        `mirror` field.
-                      nullable: true
-                      type: integer
-                    mirrorPercentage:
-                      description: Percentage of the traffic to be mirrored by the
-                        `mirror` field.
-                      properties:
-                        value:
-                          format: double
-                          type: number
-                      type: object
                     name:
                       description: The name assigned to the route for debugging purposes.
                       format: string
                       type: string
-                    redirect:
-                      description: A HTTP rule can either redirect or forward (default)
-                        traffic.
-                      properties:
-                        authority:
-                          format: string
-                          type: string
-                        redirectCode:
-                          type: integer
-                        uri:
-                          format: string
-                          type: string
-                      type: object
-                    retries:
-                      description: Retry policy for HTTP requests.
-                      properties:
-                        attempts:
-                          description: Number of retries to be allowed for a given
-                            request.
-                          format: int32
-                          type: integer
-                        perTryTimeout:
-                          description: Timeout per retry attempt for a given request.
-                          type: string
-                        retryOn:
-                          description: Specifies the conditions under which retry
-                            takes place.
-                          format: string
-                          type: string
-                        retryRemoteLocalities:
-                          description: Flag to specify whether the retries should
-                            retry to other localities.
-                          nullable: true
-                          type: boolean
-                      type: object
-                    rewrite:
-                      description: Rewrite HTTP URIs and Authority headers.
-                      properties:
-                        authority:
-                          description: rewrite the Authority/Host header with this
-                            value.
-                          format: string
-                          type: string
-                        uri:
-                          format: string
-                          type: string
-                      type: object
                     route:
                       description: A HTTP rule can either redirect or forward (default)
                         traffic.
@@ -380,155 +392,6 @@ spec:
                                       type: string
                                     type: object
                                 type: object
-                            type: object
-                          weight:
-                            format: int32
-                            type: integer
-                        type: object
-                      type: array
-                    timeout:
-                      description: Timeout for HTTP requests, default is disabled.
-                      type: string
-                  type: object
-                type: array
-              tcp:
-                description: An ordered list of route rules for opaque TCP traffic.
-                items:
-                  properties:
-                    match:
-                      items:
-                        properties:
-                          destinationSubnets:
-                            description: IPv4 or IPv6 ip addresses of destination
-                              with optional subnet.
-                            items:
-                              format: string
-                              type: string
-                            type: array
-                          gateways:
-                            description: Names of gateways where the rule should be
-                              applied.
-                            items:
-                              format: string
-                              type: string
-                            type: array
-                          port:
-                            description: Specifies the port on the host that is being
-                              addressed.
-                            type: integer
-                          sourceLabels:
-                            additionalProperties:
-                              format: string
-                              type: string
-                            type: object
-                          sourceNamespace:
-                            description: Source namespace constraining the applicability
-                              of a rule to workloads in that namespace.
-                            format: string
-                            type: string
-                          sourceSubnet:
-                            description: IPv4 or IPv6 ip address of source with optional
-                              subnet.
-                            format: string
-                            type: string
-                        type: object
-                      type: array
-                    route:
-                      description: The destination to which the connection should
-                        be forwarded to.
-                      items:
-                        properties:
-                          destination:
-                            properties:
-                              host:
-                                description: The name of a service from the service
-                                  registry.
-                                format: string
-                                type: string
-                              port:
-                                description: Specifies the port on the host that is
-                                  being addressed.
-                                properties:
-                                  number:
-                                    type: integer
-                                type: object
-                              subset:
-                                description: The name of a subset within the service.
-                                format: string
-                                type: string
-                            type: object
-                          weight:
-                            format: int32
-                            type: integer
-                        type: object
-                      type: array
-                  type: object
-                type: array
-              tls:
-                items:
-                  properties:
-                    match:
-                      items:
-                        properties:
-                          destinationSubnets:
-                            description: IPv4 or IPv6 ip addresses of destination
-                              with optional subnet.
-                            items:
-                              format: string
-                              type: string
-                            type: array
-                          gateways:
-                            description: Names of gateways where the rule should be
-                              applied.
-                            items:
-                              format: string
-                              type: string
-                            type: array
-                          port:
-                            description: Specifies the port on the host that is being
-                              addressed.
-                            type: integer
-                          sniHosts:
-                            description: SNI (server name indicator) to match on.
-                            items:
-                              format: string
-                              type: string
-                            type: array
-                          sourceLabels:
-                            additionalProperties:
-                              format: string
-                              type: string
-                            type: object
-                          sourceNamespace:
-                            description: Source namespace constraining the applicability
-                              of a rule to workloads in that namespace.
-                            format: string
-                            type: string
-                        type: object
-                      type: array
-                    route:
-                      description: The destination to which the connection should
-                        be forwarded to.
-                      items:
-                        properties:
-                          destination:
-                            properties:
-                              host:
-                                description: The name of a service from the service
-                                  registry.
-                                format: string
-                                type: string
-                              port:
-                                description: Specifies the port on the host that is
-                                  being addressed.
-                                properties:
-                                  number:
-                                    type: integer
-                                type: object
-                              subset:
-                                description: The name of a subset within the service.
-                                format: string
-                                type: string
                             type: object
                           weight:
                             format: int32

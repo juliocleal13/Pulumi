@@ -4,40 +4,14 @@ import (
 	"strconv"
 	"strings"
 
-	apiext "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/apiextensions"
+	v1beta1 "virtualservice/networking/v1beta1"
+
 	appsv1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/apps/v1"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v2/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v2/go/pulumi/config"
 )
-
-type VirtualServiceSpecHttpMatchRouteDestinationPort struct {
-	Number int
-}
-
-type VirtualServiceSpecHttpMatchRouteDestination struct {
-	Host string
-	Port VirtualServiceSpecHttpMatchRouteDestinationPort
-}
-
-type VirtualServiceSpecHttpMatchRoute struct {
-	Destination VirtualServiceSpecHttpMatchRouteDestination
-}
-
-type VirtualServiceSpecHttpMatchUri struct {
-	Prefix string
-}
-
-type VirtualServiceSpecHttpMatch struct {
-	Name  string
-	Uri   VirtualServiceSpecHttpMatchUri
-	Route VirtualServiceSpecHttpMatchRoute
-}
-
-type VirtualServiceSpecHttp struct {
-	Match VirtualServiceSpecHttpMatch
-}
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
@@ -164,36 +138,16 @@ func main() {
 			ctx.Export("name", svc.Metadata.Elem().Name())
 
 			//virtualservice
-			vs, err := apiext.NewCustomResource(ctx, name+"-"+namespace, &apiext.CustomResourceArgs{
-				ApiVersion: pulumi.String("networking.istio.io/v1beta1"),
-				Kind:       pulumi.String("VirtualService"),
+			vs, err := v1beta1.NewVirtualService(ctx, name+"-"+namespace, &v1beta1.VirtualServiceArgs{
 				Metadata: &metav1.ObjectMetaArgs{
 					Name:   pulumi.String(name + "-" + namespace),
 					Labels: appLabels,
 				},
-				OtherFields: map[string]interface{}{
-					"spec": map[string]interface{}{
-						"gateways": []string{"teste.com.br", "dfasfdf"},
-						"hosts":    []string{"teste.com.br", "dfasfdf"},
-						"http": []VirtualServiceSpecHttp{
-							Match: []VirtualServiceSpecHttpMatch{
-								Name: "default",
-								Uri: VirtualServiceSpecHttpMatchUri{
-									Prefix: "/",
-								},
-								Route: VirtualServiceSpecHttpMatchRoute{
-									Destination: VirtualServiceSpecHttpMatchRouteDestination{
-										Host: "unjdfdf.com.br",
-										Port: VirtualServiceSpecHttpMatchRouteDestinationPort{
-											Number: 80,
-										},
-									},
-								},
-							},
-						},
-					},
+				Spec: v1beta1.VirtualServiceSpecArgs{
+					Gateways: pulumi.StringArray{pulumi.String("tj-istio-gateway")},
 				},
 			})
+
 			if err != nil {
 				return err
 			}
@@ -203,3 +157,14 @@ func main() {
 		return nil
 	})
 }
+
+// http: array
+// 	match: array
+// 		name: string
+// 		uri: object
+// 			prefix: string
+// 		route: array
+// 			destination: object
+// 				host: string
+// 				port: object
+// 					number: int
