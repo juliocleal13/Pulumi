@@ -1,15 +1,57 @@
 config:
-  stack:name: v2040-tst
-  image:image_tag: "20.4.0-0"
+  #image
+  image:configs:
+    imageTag: "20.4.0-3"
+    repository: docker-unj-repo.softplan.com.br/unj/unj-workflow-frontend
+    pullPolicy: Always
+  #istio
   istio:istio_enabled: "true"
-  kubernetes:namespace: julioleal
-  unj-workflow-frontend:replicas: 1
-  unj-workflow-frontend:pullSecret: unjregistry
-  image:repository: "docker-unj-repo.softplan.com.br/unj/unj-workflow-frontend"
-  
-  image:pullPolicy: Always
+  #istio virtualservice
+  istio:virtualservice:
+    enabled: true
+    apiPath: "/"
+    gateways:
+    - tj-istio-gateway.istio-system.svc.cluster.local
+    hosts:
+    - workflow-julioleal.saj6.softplan.com.br
 
-  resources:limit_cpu: 500m
-  resources:limit_memory: 300Mi
-  resources:requests_cpu: 500m
-  resources:requests_memory: 256Mi
+  #service
+  service:service:
+    apply: true
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+    protocol: TCP
+
+  #kubernetes
+  kubernetes:namespace: julioleal
+  #resources
+  resources:configs:
+    limitCpu: "500m"
+    limitMemory: "300Mi"
+    requestsCpu: "500m"
+    requestsMemory: "256Mi"
+  #configuracoes do serviço
+  unj-workflow-frontend:configs:
+    replicas: 1
+    pullSecret: unjregistry
+  unj-workflow-frontend:envs:
+    dateHour: 000000
+    keycloakBaseUrl: http://identity-dev.saj6.softplan.com.br/auth
+    appName: "Workflow"
+    keycloakClientId: "saj"
+    applicationInitials: "CDL"
+    appTokenName: "cdl_token"
+    apmUrl: http://apm.noruega.softplan.com.br:8200
+    apmToken: ""
+    sajKeycloakRealm: SAJ-PM-TJMS-HML-PG
+    sajApmEnvironment: ""
+    sajLanguage: "pt-BR"
+    tz: America/Sao_Paulo
+    sajApolloUrl: http://pm-tjms-hml-pg.saj6.softplan.com.br/apollo
+    sajThemeUrl: ""
+
+
+
+
+
