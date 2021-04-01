@@ -1,0 +1,6 @@
+name: mongodb
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Helm install mongodb

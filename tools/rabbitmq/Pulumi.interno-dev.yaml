@@ -1,0 +1,20 @@
+config:
+  kubernetes:namespace: julioleal
+  rabbitmq:rabbitmqAuthPassword:
+    secure: AAABAJeVF0JijP+kW//VN271Br02/f5Nmue9gPEWLeAu5yQ4+oxKCnetcRx2/NKbQA==
+  rabbitmq:set:
+    replicaCount: 1
+    extraPlugins: rabbitmq_shovel rabbitmq_shovel_management rabbitmq_federation rabbitmq_federation_management
+      rabbitmq_tracing rabbitmq_top
+    forceBoot: true
+    memoryHighWatermarkEnabled: true
+    memoryHighWatermarkType: relative
+    memoryHighWatermarkValue: 0.4
+    persistenceSize: 20Gi
+    resourcesLimitsCpu: 2
+    resourcesLimitsMemory: 2Gi
+    resourcesRequestCpu: 1
+    resourcesRequestsMemory: 1Gi
+    serviceType: LoadBalancer
+    username: admin
+    rabbitmqAuthPassword: 7mF2DF4vh9h3456yu

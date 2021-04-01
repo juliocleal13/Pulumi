@@ -1,0 +1,6 @@
+name: rabbitmq
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: helm install rabbitmq
