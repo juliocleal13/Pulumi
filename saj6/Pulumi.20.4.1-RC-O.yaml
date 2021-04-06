@@ -1,0 +1,7 @@
+config:
+  docker:host: unix:///var/run/docker.sock
+  saj6:dockerPassword:
+    secure: AAABAC44QcApjVtlJuE8YfRYOaKr7Y88LjOMca3sgsaiZzx6596ciFxH
+  saj6:dockerUsername: julio.leal
+  saj6:tags:
+    unj-workflow-frontend: 20.4.1-RC-0
