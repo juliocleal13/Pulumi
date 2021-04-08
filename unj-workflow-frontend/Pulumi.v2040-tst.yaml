@@ -1,7 +1,7 @@
 config:
   #image
   image:configs:
-    imageTag: "20.4.0-3"
+    imageTag: "20.4.0-4"
     repository: docker-unj-repo.softplan.com.br/unj/unj-workflow-frontend
     pullPolicy: Always
   #istio
